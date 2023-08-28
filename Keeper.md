@@ -20,17 +20,17 @@ Artifact Files:
 
 Began by doing nmap to enumerate for open ports and services.
 
-![](RackMultipart20230828-1-nvm838_html_6e170c34dd23670e.png)
+![image](https://github.com/khoowh1996/HackTheBox-Writeup/assets/74196098/92353e24-f853-4840-af64-819d6b1df48a)
 
 We can see that there are port 22 for SSH and port 80, indicating that there is a website.
 
 Upon browsing [http://MACHINE\_IP](http://MACHINE_IP/), we can see that the page is showing a link redirecting to [http://tickets.keeper.htb/rt](http://tickets.keeper.htb/rt). At first I tried to click on the link directly, but wasn't able to resolve the host. After which I had google abit to find out that I had to tie the url in my hosts file (/etc/hosts).
 
-![](RackMultipart20230828-1-nvm838_html_6456103f0ace044d.png)
+![image](https://github.com/khoowh1996/HackTheBox-Writeup/assets/74196098/2adb1b97-a915-48f0-9d84-672ef331eddf)
 
 After tying the hosts file, I was able to access to the request tracker page.
 
-![](RackMultipart20230828-1-nvm838_html_280a748d1f630b06.png)
+![image](https://github.com/khoowh1996/HackTheBox-Writeup/assets/74196098/c5296f27-9f2d-48b8-8cba-7e7f47069ec9)
 
 I tried to do ffuf, gobuster, dirb on the web application, but I was not able to find for any web directory or hidden directory.
 
@@ -40,23 +40,25 @@ Following the same idea, I used Burp Suite to configure a mini intruding session
 
 But before I could continue with the brute force attack, I had to first configure for the CSRF protection, in the Burp Suite settings.
 
-![](RackMultipart20230828-1-nvm838_html_b7bfa3abea534a0.png)
+![image](https://github.com/khoowh1996/HackTheBox-Writeup/assets/74196098/a8e7dbfc-0926-452e-8804-8c8241033188)
+
 
 Next up, I configured for Clusterbomb attack type, on the web application using the following payload list.
 
-![](RackMultipart20230828-1-nvm838_html_d1c57692a4c9db2c.png)
+![image](https://github.com/khoowh1996/HackTheBox-Writeup/assets/74196098/a8c2bbc2-d888-4a4a-af7e-7a7328998385)
 
-![](RackMultipart20230828-1-nvm838_html_3631c1e7349f7cdf.png)
+![image](https://github.com/khoowh1996/HackTheBox-Writeup/assets/74196098/1ad1b9a3-5529-4ab5-88e1-8722efdbaa64)
 
 /usr/share/wordlists/fasttrack.txt
 
 Using the following settings, I was able to find that the password for Root is "password"
 
-![](RackMultipart20230828-1-nvm838_html_36164e13667a3653.png)
+![image](https://github.com/khoowh1996/HackTheBox-Writeup/assets/74196098/12d53dda-9030-43db-83cb-89693dc86290)
 
 Finally, after 10-20minutes of fiddling, I was able to gain access to the website
 
-![](RackMultipart20230828-1-nvm838_html_5cbfd7106756060d.png)
+![image](https://github.com/khoowh1996/HackTheBox-Writeup/assets/74196098/ae28a0b8-b7f6-47bc-8873-00190fb09bf6)
+
 
 Now I would have to find some form of exploits/vulnerabilities or information within the request tracker.
 
@@ -64,17 +66,19 @@ I first head to Exploit DB and google, but I wasn't able to find any form of exp
 
 Next I browse through the request tracker catalogues, I managed to stumbled upon the "Users" section, which leads me to another user called "lnorgaard".
 
-![](RackMultipart20230828-1-nvm838_html_e59484264a58fa98.png)
+![image](https://github.com/khoowh1996/HackTheBox-Writeup/assets/74196098/9c338e3b-9559-474d-8e32-d5e1499244e4)
+
 
 When I click into the user, I can see that there are password written in the comment section for the following user.
 
-![](RackMultipart20230828-1-nvm838_html_971ff142aad456aa.png)
+![image](https://github.com/khoowh1996/HackTheBox-Writeup/assets/74196098/eaabb6b5-795f-4f19-a2c6-825312a680e7)
+
 
 With the username and password, I tried to access the Keeper Server using SSH. I was able to connect to SSH and get access to the user.txt flag.
 
 \*\*1. Get User Access /flag1\*\*
 
-![](RackMultipart20230828-1-nvm838_html_1d00c5ee9592eaa7.png)
+![image](https://github.com/khoowh1996/HackTheBox-Writeup/assets/74196098/c106bcfe-fa88-439c-b339-76558aec894e)
 
 \*\*2 Get Root Access /root.txt\*\*
 
@@ -88,19 +92,23 @@ Because this machine was a shared machine, I was not sure if the KeePass files w
 
 From this, I began to find my way to debug and analyze the files. While doing research on KeePass, there wasn't any direct exploit on the KeePass database file or application. So I installed KeePass on my Kali Linux to open the database. However I was prompted with master password.
 
-![](RackMultipart20230828-1-nvm838_html_bdf29cd85ec6794d.png)
+![image](https://github.com/khoowh1996/HackTheBox-Writeup/assets/74196098/5753cf64-1f90-42d1-92b9-2a5e032901e1)
+
 
 At first, I tried to use the previous password, but I was not able to access the password database. I continued to research on how to debug for the .dmp file that was generated along with the database file. I was able to find out that there is apparently ways to extract the master password from the .dmp file.
 
 I found a github repository that is able to extract the master password from the .dmp file called KeePass Password Dumper(https://github.com/CMEPW/keepass-dump-masterkey)
 
-![](RackMultipart20230828-1-nvm838_html_9553f26fdeee5351.png) I got the results of some weird character, which from the username, I was able to determine that the user and password is of Danish origin. I google for the possible password, it came out as "Rødgrød Med Fløde" which is a Danish red berry pudding name.
+![image](https://github.com/khoowh1996/HackTheBox-Writeup/assets/74196098/98062792-1552-4f04-973f-544c745e3bce)
+ I got the results of some weird character, which from the username, I was able to determine that the user and password is of Danish origin. I google for the possible password, it came out as "Rødgrød Med Fløde" which is a Danish red berry pudding name.
 
-![](RackMultipart20230828-1-nvm838_html_b3b09e9d7d3f0169.png)
+![image](https://github.com/khoowh1996/HackTheBox-Writeup/assets/74196098/3f3437f2-d895-437c-8d27-a88ca534dcb7)
+
 
 Having the possible password, I copied pasted it into the passcode, and it works.
 
-![](RackMultipart20230828-1-nvm838_html_392b0d925a7f4f2b.png)
+![image](https://github.com/khoowh1996/HackTheBox-Writeup/assets/74196098/d5dcaa92-6aa1-4042-a23a-50105890b7e9)
+
 
 In the KeePass Manager, its revealed that the pass for Root is "F4\>\<3K0nd!". However I tried to do su – root and ssh login to root, however the password does not seem to work.
 
@@ -110,11 +118,13 @@ I then google abit to find that its possible to convert the following into. ppk 
 
 So I saved the line and convert the .ppk file, using puttygen to convert ppk to pem as detailed in this stackoverflow thread [https://askubuntu.com/questions/818929/login-ssh-with-ppk-file-on-ubuntu-terminal](https://askubuntu.com/questions/818929/login-ssh-with-ppk-file-on-ubuntu-terminal)
 
-![](RackMultipart20230828-1-nvm838_html_e81a0c95a6580b2a.png)
+![image](https://github.com/khoowh1996/HackTheBox-Writeup/assets/74196098/c121394b-0aa0-49f8-bb13-a669af87f159)
+
 
 Once done, I ran the ssh with the pem key, and I was connected as root to machine. Now I just had to go and retrieve the root.txt
 
-![](RackMultipart20230828-1-nvm838_html_a0a5835718cd641e.png)
+![image](https://github.com/khoowh1996/HackTheBox-Writeup/assets/74196098/9ca254d4-ab97-4fb4-a50a-1226c0c8901b)
+
 
 ### Reflections
 
